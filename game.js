@@ -281,12 +281,21 @@ function spawnEnemy() {
     else if (side === 2) { x = Math.random() * CANVAS.width; y = CANVAS.height + 50; } // Bottom
     else { x = -50; y = Math.random() * CANVAS.height; } // Left
     
-    // Type based on wave
+    // Type based on wave - More varied earlier
     let type = 0;
-    if (gameState.wave > 3 && Math.random() > 0.7) type = 1;
-    if (gameState.wave > 6 && Math.random() > 0.8) type = 2;
+    if (gameState.wave >= 2 && Math.random() > 0.6) type = 1; // Square enemies at wave 2
+    if (gameState.wave >= 4 && Math.random() > 0.7) type = 2; // Pentagon enemies at wave 4
     
     gameState.enemies.push(new Enemy(x, y, type));
+}
+
+function showMainMenu(username) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('game-container').style.display = 'none';
+    document.getElementById('game-over-modal').style.display = 'none';
+    document.getElementById('main-menu').style.display = 'block';
+    document.getElementById('player-name').innerText = username;
+    loadLeaderboard();
 }
 
 function startGame() {
@@ -299,19 +308,42 @@ function startGame() {
     gameState.wave = 1;
     gameState.score = 0;
     gameState.points = 0;
+    gameState.gameTime = 0;
     gameState.running = true;
     gameState.lastTime = performance.now();
     
-    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('main-menu').style.display = 'none'; // Hide menu
     document.getElementById('game-container').style.display = 'block';
     
     requestAnimationFrame(gameLoop);
+}
+
+function restartGame() {
+    document.getElementById('game-over-modal').style.display = 'none';
+    startGame();
+}
+
+function backToMenu() {
+    document.getElementById('game-over-modal').style.display = 'none';
+    document.getElementById('game-container').style.display = 'none';
+    gameState.running = false;
+    // Get username from stored token payload if needed, or just show menu
+    // For simplicity, we assume username is still valid or re-fetch it
+    document.getElementById('main-menu').style.display = 'block';
+    loadLeaderboard();
+}
+
+function logout() {
+    localStorage.removeItem('token');
+    location.reload();
 }
 
 function gameOver() {
     gameState.running = false;
     document.getElementById('game-over-modal').style.display = 'block';
     document.getElementById('final-wave').innerText = gameState.wave;
+    document.getElementById('final-score').innerText = gameState.score;
+    document.getElementById('final-time').innerText = Math.floor(gameState.gameTime) + 's';
     
     // Send stats to backend
     fetch('/api/stats', {
@@ -323,9 +355,10 @@ function gameOver() {
         body: JSON.stringify({
             wave: gameState.wave,
             kills: gameState.score / 10, // Approx
-            time: Math.floor(gameState.gameTime)
+            time: Math.floor(gameState.gameTime),
+            score: gameState.score
         })
-    });
+    }).then(() => loadLeaderboard());
 }
 
 // Upgrades System
@@ -370,13 +403,13 @@ async function login(username, password) {
         const data = await res.json();
         if (res.ok) {
             localStorage.setItem('token', data.token);
-            startGame();
+            showMainMenu(data.username);
         } else {
             document.getElementById('auth-message').innerText = data.error || 'Login failed';
         }
     } catch (e) {
-        document.getElementById('auth-message').innerText = 'Connection error. Is server running?';
-        console.error(e);
+        console.error('Login error:', e);
+        document.getElementById('auth-message').innerText = 'Connection error. Check console (F12) for details.';
     }
 }
 
@@ -394,8 +427,8 @@ async function register(username, password) {
             document.getElementById('auth-message').innerText = data.error || 'Registration failed';
         }
     } catch (e) {
-        document.getElementById('auth-message').innerText = 'Connection error. Is server running?';
-        console.error(e);
+        console.error('Register error:', e);
+        document.getElementById('auth-message').innerText = 'Connection error. Check console (F12) for details.';
     }
 }
 
@@ -408,7 +441,14 @@ async function loadLeaderboard() {
         }
         const data = await res.json();
         const list = document.getElementById('leaderboard-list');
-        list.innerHTML = data.map(u => `<div class="leaderboard-entry"><span>${u.username}</span><span>Wave ${u.highScore}</span></div>`).join('');
+        list.innerHTML = data.map((u, index) => 
+            `<div class="leaderboard-entry">
+                <span style="width: 30px;">#${index + 1}</span>
+                <span style="flex-grow: 1;">${u.username}</span>
+                <span style="width: 60px; text-align: center;">Wave ${u.highScore}</span>
+                <span style="width: 80px; text-align: right;">${u.bestScore || 0}</span>
+            </div>`
+        ).join('');
     } catch (e) {
         document.getElementById('leaderboard-list').innerText = 'Offline';
     }
@@ -427,5 +467,17 @@ document.getElementById('register-btn').onclick = () => {
     if(u && p) register(u, p);
 };
 
+document.getElementById('play-btn').onclick = startGame;
+
 // Initial Load
-loadLeaderboard();
+// Check if already logged in
+const token = localStorage.getItem('token');
+if (token) {
+    // Ideally verify token with backend here
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    // We don't have username in token payload except if we added it, 
+    // but we can just show menu and let them play or logout
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('main-menu').style.display = 'block';
+    loadLeaderboard();
+}

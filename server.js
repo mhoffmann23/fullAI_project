@@ -11,6 +11,10 @@ const PORT = process.env.PORT || 3000;
 const JWT_SECRET = 'secret_key_change_me'; // In production use environment variable
 
 // Middleware
+app.use((req, res, next) => {
+    console.log(`${req.method} ${req.url}`);
+    next();
+});
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(__dirname)); // Serve static files from root
@@ -49,6 +53,7 @@ const UserSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     highScore: { type: Number, default: 0 }, // Max wave reached
+    bestScore: { type: Number, default: 0 }, // Max score reached
     totalKills: { type: Number, default: 0 },
     totalTime: { type: Number, default: 0 }, // In seconds
     gamesPlayed: { type: Number, default: 0 }
@@ -60,11 +65,17 @@ const User = mongoose.model('User', UserSchema);
 app.post('/api/register', async (req, res) => {
     const { username, password } = req.body;
     try {
+        const existingUser = await User.findOne({ username });
+        if (existingUser) {
+            return res.status(400).json({ error: 'Username already exists' });
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = new User({ username, password: hashedPassword });
         await user.save();
         res.status(201).json({ message: 'User created' });
     } catch (error) {
+        console.error('Registration error:', error);
         res.status(500).json({ error: 'Error registering user' });
     }
 });
@@ -73,10 +84,10 @@ app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
     try {
         const user = await User.findOne({ username });
-        if (!user) return res.status(400).json({ error: 'User not found' });
-        
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(400).json({ error: 'Invalid credentials' });
+        // Use a generic error message for security
+        if (!user || !(await bcrypt.compare(password, user.password))) {
+            return res.status(401).json({ error: 'Invalid username or password' });
+        }
         
         const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1h' });
         res.json({ token, username: user.username });
@@ -92,19 +103,20 @@ app.post('/api/stats', async (req, res) => {
     
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
-        const { wave, kills, time } = req.body;
+        const { wave, kills, time, score } = req.body;
         
         const user = await User.findById(decoded.userId);
         if (!user) return res.status(404).json({ error: 'User not found' });
         
         // Update stats
         if (wave > user.highScore) user.highScore = wave;
+        if (score > (user.bestScore || 0)) user.bestScore = score;
         user.totalKills += kills;
         user.totalTime += time;
         user.gamesPlayed += 1;
         
         await user.save();
-        res.json({ message: 'Stats updated', highScore: user.highScore });
+        res.json({ message: 'Stats updated', highScore: user.highScore, bestScore: user.bestScore });
     } catch (error) {
         res.status(500).json({ error: 'Error updating stats' });
     }
@@ -112,7 +124,7 @@ app.post('/api/stats', async (req, res) => {
 
 app.get('/api/leaderboard', async (req, res) => {
     try {
-        const topUsers = await User.find().sort({ highScore: -1 }).limit(10).select('username highScore totalKills');
+        const topUsers = await User.find().sort({ bestScore: -1 }).limit(10).select('username highScore bestScore');
         res.json(topUsers);
     } catch (error) {
         res.status(500).json({ error: 'Error fetching leaderboard' });
@@ -124,6 +136,6 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
 });

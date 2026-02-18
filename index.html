@@ -11,16 +11,34 @@
     <!-- Login/Register Screen -->
     <div id="login-screen">
         <h1>Geo Shooter</h1>
+        <p>Login to save your progress</p>
         <input type="text" id="username" placeholder="Username">
         <input type="password" id="password" placeholder="Password">
         <button id="login-btn">Login</button>
-        <button id="register-btn">Register</button>
+        <button id="register-btn" class="secondary">Register</button>
         <p id="auth-message"></p>
+    </div>
 
-        <div id="leaderboard">
-            <h3>Top Survivors</h3>
-            <div id="leaderboard-list">Loading...</div>
+    <!-- Main Menu (After Login) -->
+    <div id="main-menu">
+        <h1>Geo Shooter</h1>
+        <p>Welcome, <span id="player-name" style="color: #00bcd4; font-weight: bold;">Player</span></p>
+        
+        <button id="play-btn" class="big-btn">PLAY GAME</button>
+        
+        <div style="width: 400px; margin: 30px auto;">
+             <div id="leaderboard">
+                <h3>Global Leaderboard</h3>
+                <div id="leaderboard-header" class="leaderboard-entry" style="font-weight: bold; border-bottom: 2px solid #fff;">
+                    <span>Rank</span>
+                    <span>Name</span>
+                    <span>Wave</span>
+                    <span>Score</span>
+                </div>
+                <div id="leaderboard-list">Loading...</div>
+            </div>
         </div>
+        <button onclick="logout()" class="secondary" style="margin-top: 20px;">Logout</button>
     </div>
 
     <!-- Game Container -->
@@ -50,10 +68,15 @@
         </div>
         
         <!-- Game Over Modal -->
-        <div id="game-over-modal" style="display:none; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:rgba(0,0,0,0.9); padding:40px; text-align:center; border-radius:10px;">
-            <h2 style="color:red;">GAME OVER</h2>
-            <p>You reached Wave <span id="final-wave">0</span></p>
-            <button onclick="location.reload()">Play Again</button>
+        <div id="game-over-modal" style="display:none; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:rgba(0,0,0,0.9); padding:40px; text-align:center; border-radius:10px; width: 400px; box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);">
+            <h2 style="color:red; margin-top: 0;">GAME OVER</h2>
+            <div style="margin: 20px 0; text-align: left; padding: 0 40px;">
+                <p>Wave Reached: <span id="final-wave" style="float: right; color: #00bcd4;">0</span></p>
+                <p>Score: <span id="final-score" style="float: right; color: #ffeb3b;">0</span></p>
+                <p>Time Survived: <span id="final-time" style="float: right; color: #4caf50;">0s</span></p>
+            </div>
+            <button onclick="restartGame()" style="width: 100%; margin-bottom: 10px;">Play Again</button>
+            <button onclick="backToMenu()" style="width: 100%; background: #555;">Back to Menu</button>
         </div>
     </div>
 
