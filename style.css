@@ -1,0 +1,121 @@
+body {
+    margin: 0;
+    overflow: hidden;
+    background: #222;
+    color: #fff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#game-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: none; /* Hidden until logged in */
+}
+
+canvas {
+    display: block;
+}
+
+#ui-layer {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    pointer-events: none; /* Allow clicks through UI */
+}
+
+.hud-text {
+    font-size: 20px;
+    margin-bottom: 5px;
+    text-shadow: 2px 2px 4px #000;
+}
+
+#upgrade-menu {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.7);
+    padding: 15px;
+    border-radius: 10px;
+    display: flex;
+    gap: 10px;
+    pointer-events: auto;
+}
+
+.upgrade-btn {
+    background: #444;
+    border: 2px solid #666;
+    color: #fff;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.upgrade-btn:hover {
+    background: #666;
+    border-color: #888;
+}
+
+.upgrade-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#login-screen {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #333;
+    padding: 40px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+#login-screen h1 {
+    margin-top: 0;
+    color: #00bcd4;
+}
+
+input {
+    display: block;
+    margin: 10px auto;
+    padding: 10px;
+    width: 200px;
+    background: #444;
+    border: none;
+    color: #fff;
+    border-radius: 5px;
+}
+
+button {
+    background: #00bcd4;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+button:hover {
+    background: #00acc1;
+}
+
+#leaderboard {
+    margin-top: 20px;
+    text-align: left;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.leaderboard-entry {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    border-bottom: 1px solid #444;
+}

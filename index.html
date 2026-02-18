@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geo Shooter</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Login/Register Screen -->
+    <div id="login-screen">
+        <h1>Geo Shooter</h1>
+        <input type="text" id="username" placeholder="Username">
+        <input type="password" id="password" placeholder="Password">
+        <button id="login-btn">Login</button>
+        <button id="register-btn">Register</button>
+        <p id="auth-message"></p>
+
+        <div id="leaderboard">
+            <h3>Top Survivors</h3>
+            <div id="leaderboard-list">Loading...</div>
+        </div>
+    </div>
+
+    <!-- Game Container -->
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+        
+        <div id="ui-layer">
+            <div class="hud-text">Wave: <span id="wave-display">1</span></div>
+            <div class="hud-text">Score: <span id="score-display">0</span></div>
+            <div class="hud-text">Health: <span id="health-display">100</span>%</div>
+            <div class="hud-text">Points: <span id="points-display">0</span></div>
+        </div>
+
+        <div id="upgrade-menu">
+            <button class="upgrade-btn" id="upgrade-damage" title="Increase bullet damage">
+                Damage (+5) <br> Cost: <span id="cost-damage">100</span>
+            </button>
+            <button class="upgrade-btn" id="upgrade-firerate" title="Increase fire rate">
+                Fire Rate (+10%) <br> Cost: <span id="cost-firerate">150</span>
+            </button>
+            <button class="upgrade-btn" id="upgrade-speed" title="Increase movement speed">
+                Speed (+5%) <br> Cost: <span id="cost-speed">120</span>
+            </button>
+            <button class="upgrade-btn" id="upgrade-health" title="Restore health">
+                Heal (20%) <br> Cost: <span id="cost-health">80</span>
+            </button>
+        </div>
+        
+        <!-- Game Over Modal -->
+        <div id="game-over-modal" style="display:none; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:rgba(0,0,0,0.9); padding:40px; text-align:center; border-radius:10px;">
+            <h2 style="color:red;">GAME OVER</h2>
+            <p>You reached Wave <span id="final-wave">0</span></p>
+            <button onclick="location.reload()">Play Again</button>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
