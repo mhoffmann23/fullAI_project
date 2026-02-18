@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ulice - Simulátor Přežití</title>
+    <link rel="stylesheet" href="ulice-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Special+Elite&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- INTRO SCREEN -->
+    <div id="intro-screen" class="screen active">
+        <div class="intro-content">
+            <h1>ULICE</h1>
+            <p class="subtitle">Simulátor Přežití</p>
+            <div class="intro-text">
+                <p>Probudíš se na lavičce v parku. Nevíš jak ses sem dostal.</p>
+                <p>Vše co máš je prázdná peněženka a démony v hlavě.</p>
+                <p>Přežij. Najdi cestu zpět.</p>
+            </div>
+            <div class="warning-box">
+                <p>⚠️ Tato hra obsahuje těžká témata: bezdomovectví, závislost, psychické problémy.</p>
+                <p>Pokud potřebuješ pomoc: Linka důvěry 116 123</p>
+            </div>
+            <button id="start-btn" class="main-btn">Začít Nový Den</button>
+            <div class="credits">
+                <p>Vytvořeno s respektem k lidem bojujícím s těmito problémy.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN GAME SCREEN -->
+    <div id="game-screen" class="screen">
+        <!-- Top Bar -->
+        <div id="top-bar">
+            <div class="stat-group">
+                <div class="stat">
+                    <span class="stat-icon">📅</span>
+                    <span id="day-display">Den 1</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-icon">🕐</span>
+                    <span id="time-display">08:00</span>
+                </div>
+                <div class="stat weather">
+                    <span id="weather-icon">☀️</span>
+                    <span id="weather-display">Jasno</span>
+                    <span id="temp-display">15°C</span>
+                </div>
+            </div>
+            <div class="stat-group">
+                <div class="stat money">
+                    <span class="stat-icon">💰</span>
+                    <span id="money-display">0 Kč</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Bars -->
+        <div id="status-panel">
+            <div class="status-bar-container">
+                <label>❤️ Zdraví</label>
+                <div class="status-bar"><div id="health-bar" class="bar-fill health"></div></div>
+                <span id="health-value">100%</span>
+            </div>
+            <div class="status-bar-container">
+                <label>🍞 Hlad</label>
+                <div class="status-bar"><div id="hunger-bar" class="bar-fill hunger"></div></div>
+                <span id="hunger-value">100%</span>
+            </div>
+            <div class="status-bar-container">
+                <label>💧 Žízeň</label>
+                <div class="status-bar"><div id="thirst-bar" class="bar-fill thirst"></div></div>
+                <span id="thirst-value">100%</span>
+            </div>
+            <div class="status-bar-container">
+                <label>🌡️ Teplo</label>
+                <div class="status-bar"><div id="warmth-bar" class="bar-fill warmth"></div></div>
+                <span id="warmth-value">100%</span>
+            </div>
+            <div class="status-bar-container">
+                <label>😴 Energie</label>
+                <div class="status-bar"><div id="energy-bar" class="bar-fill energy"></div></div>
+                <span id="energy-value">100%</span>
+            </div>
+            <div class="status-bar-container">
+                <label>🧠 Psychika</label>
+                <div class="status-bar"><div id="mental-bar" class="bar-fill mental"></div></div>
+                <span id="mental-value">100%</span>
+            </div>
+            <div class="status-bar-container addiction-bar">
+                <label>💉 Absťák</label>
+                <div class="status-bar"><div id="addiction-bar" class="bar-fill addiction"></div></div>
+                <span id="addiction-value">80%</span>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div id="main-content">
+            <!-- Location Panel -->
+            <div id="location-panel">
+                <div id="location-header">
+                    <h2 id="location-name">Park</h2>
+                    <p id="location-description">Městský park. Pár laviček, odpadkové koše, fontána.</p>
+                </div>
+                <div id="location-image"></div>
+            </div>
+
+            <!-- Action Log -->
+            <div id="log-panel">
+                <h3>📜 Události</h3>
+                <div id="log-content"></div>
+            </div>
+
+            <!-- Actions Panel -->
+            <div id="actions-panel">
+                <h3>🎯 Akce</h3>
+                <div id="actions-list"></div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div id="bottom-nav">
+            <button class="nav-btn active" data-tab="map">🗺️ Mapa</button>
+            <button class="nav-btn" data-tab="inventory">🎒 Inventář</button>
+            <button class="nav-btn" data-tab="skills">📊 Stav</button>
+            <button class="nav-btn" data-tab="quests">📋 Cíle</button>
+        </div>
+
+        <!-- Tab Panels -->
+        <div id="tab-panels">
+            <!-- Map Panel -->
+            <div id="map-panel" class="tab-panel active">
+                <h3>🗺️ Lokace</h3>
+                <div id="locations-grid"></div>
+            </div>
+
+            <!-- Inventory Panel -->
+            <div id="inventory-panel" class="tab-panel">
+                <h3>🎒 Inventář</h3>
+                <div id="inventory-grid"></div>
+            </div>
+
+            <!-- Skills/Stats Panel -->
+            <div id="skills-panel" class="tab-panel">
+                <h3>📊 Detailní Stav</h3>
+                <div id="skills-content"></div>
+            </div>
+
+            <!-- Quests Panel -->
+            <div id="quests-panel" class="tab-panel">
+                <h3>📋 Cíle</h3>
+                <div id="quests-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- EVENT MODAL -->
+    <div id="event-modal" class="modal">
+        <div class="modal-content">
+            <div id="event-icon"></div>
+            <h2 id="event-title"></h2>
+            <p id="event-description"></p>
+            <div id="event-choices"></div>
+        </div>
+    </div>
+
+    <!-- GAME OVER SCREEN -->
+    <div id="gameover-screen" class="screen">
+        <div class="gameover-content">
+            <h1 id="gameover-title">KONEC</h1>
+            <p id="gameover-reason"></p>
+            <div id="gameover-stats"></div>
+            <button id="restart-btn" class="main-btn">Zkusit Znovu</button>
+        </div>
+    </div>
+
+    <!-- ENDING SCREEN -->
+    <div id="ending-screen" class="screen">
+        <div class="ending-content">
+            <h1 id="ending-title"></h1>
+            <div id="ending-text"></div>
+            <div id="ending-stats"></div>
+            <button id="ending-restart-btn" class="main-btn">Hrát Znovu</button>
+        </div>
+    </div>
+
+    <script src="ulice-game.js"></script>
+</body>
+</html>
