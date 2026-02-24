@@ -8,7 +8,7 @@ const jwt = require('jsonwebtoken');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const JWT_SECRET = 'secret_key_change_me'; // In production use environment variable
+const JWT_SECRET = process.env.JWT_SECRET || 'secret_key_change_me'; // In production use environment variable
 
 // Middleware
 app.use((req, res, next) => {
@@ -22,9 +22,11 @@ app.use(express.static(__dirname)); // Serve static files from root
 // MongoDB Connection
 let isConnected = false;
 
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/geo-shooter';
+
 const connectDB = async () => {
     try {
-        await mongoose.connect('mongodb://127.0.0.1:27017/geo-shooter', {
+        await mongoose.connect(MONGO_URI, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
             serverSelectionTimeoutMS: 5000 // Timeout after 5s

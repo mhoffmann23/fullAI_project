@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const uri = 'mongodb://127.0.0.1:27017/geo-shooter';
+const uri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/geo-shooter';
 
 console.log('Testing MongoDB connection...');
 mongoose.connect(uri, { serverSelectionTimeoutMS: 5000 })
