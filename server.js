@@ -25,16 +25,26 @@ let isConnected = false;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/geo-shooter';
 
 const connectDB = async () => {
+    console.log('Attempting to connect to MongoDB...');
+    console.log('URI:', MONGO_URI.replace(/:([^:@]+)@/, ':****@')); // Log masked URI for debugging
+
     try {
         await mongoose.connect(MONGO_URI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
             serverSelectionTimeoutMS: 5000 // Timeout after 5s
         });
-        console.log('MongoDB connected');
+        console.log('✅ MongoDB connected successfully');
         isConnected = true;
     } catch (err) {
-        console.error('MongoDB connection error:', err.message);
+        console.error('❌ MongoDB connection error:', err.message);
+        console.error('Full error:', JSON.stringify(err, null, 2));
+        
+        // Don't just retry blindly, log specific hints
+        if (err.message.includes('bad auth')) {
+            console.error('Hint: Check your username and password in MONGO_URI.');
+        } else if (err.message.includes('ECONNREFUSED') || err.message.includes('cluster unavailable')) {
+            console.error('Hint: Check Network Access in Atlas (0.0.0.0/0 required).');
+        }
+
         console.log('Retrying in 5 seconds...');
         setTimeout(connectDB, 5000);
     }
